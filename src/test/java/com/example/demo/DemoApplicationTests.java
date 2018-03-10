@@ -1,8 +1,12 @@
 package com.example.demo;
 
+import com.example.demo.dao.UserService;
 import com.example.demo.restful.UserController;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -22,17 +26,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 @SpringBootTest
 public class DemoApplicationTests {
-	public static MockMvc mvc;
-	static{
-		mvc = MockMvcBuilders.standaloneSetup(new UserController()).build();
 
+	@Autowired
+	private UserService userService;
+
+	@Before
+	public void setUp(){
+		userService.deleteAllUsers();
 	}
 
 	@Test
-	public void testUserController() throws Exception {
-		RequestBuilder request=null;
-		request=get("/users/");
-		mvc.perform(request).andExpect(status().isOk()).andExpect(content().string(equalTo("[]")));
-	}
+	public void test() throws Exception{
+		userService.create("a",1);
+		userService.create("b",1);
+		userService.create("c",1);
+		userService.create("d",1);
+		userService.create("e",1);
+		Assert.assertEquals(5,userService.getUserCount().intValue());
 
+		userService.deleteByName("a");
+		userService.deleteByName("b");
+		Assert.assertEquals(3,userService.getUserCount().intValue());
+
+		System.out.println(userService.getAllUsers());
+	}
 }
